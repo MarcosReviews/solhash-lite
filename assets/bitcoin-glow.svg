@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="btc-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffaa00" stop-opacity="0.4"/>
+      <stop offset="70%" stop-color="#ff8800" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="btc-coin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffcc00"/>
+      <stop offset="50%" stop-color="#ff8800"/>
+      <stop offset="100%" stop-color="#cc5500"/>
+    </linearGradient>
+    <filter id="btc-shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#ff8800" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="100" r="95" fill="url(#btc-glow)"/>
+  <circle cx="100" cy="100" r="60" fill="none" stroke="url(#btc-coin)" stroke-width="4" filter="url(#btc-shadow)"/>
+  <circle cx="100" cy="100" r="52" fill="none" stroke="#ff8800" stroke-width="1.5" opacity="0.4"/>
+  <text x="100" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="52" font-weight="bold" fill="url(#btc-coin)" filter="url(#btc-shadow)">₿</text>
+  <circle cx="100" cy="100" r="70" fill="none" stroke="#ffaa00" stroke-width="0.5" opacity="0.3" stroke-dasharray="4 8"/>
+</svg>

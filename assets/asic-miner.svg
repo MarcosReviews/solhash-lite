@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120" width="180" height="120">
+  <defs>
+    <linearGradient id="miner-body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a2a3a"/>
+      <stop offset="100%" stop-color="#1a1a28"/>
+    </linearGradient>
+    <linearGradient id="miner-front" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#333345"/>
+      <stop offset="100%" stop-color="#22222e"/>
+    </linearGradient>
+    <filter id="led-glow-g">
+      <feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="led-glow-o">
+      <feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Body -->
+  <rect x="10" y="20" width="160" height="75" rx="6" fill="url(#miner-body)" stroke="#3a3a4a" stroke-width="1.5"/>
+  <!-- Front face -->
+  <rect x="10" y="20" width="40" height="75" rx="6" fill="url(#miner-front)" stroke="#3a3a4a" stroke-width="1"/>
+  <!-- Fan grills -->
+  <circle cx="30" cy="45" r="12" fill="none" stroke="#555" stroke-width="1"/>
+  <circle cx="30" cy="45" r="8" fill="none" stroke="#444" stroke-width="0.5"/>
+  <circle cx="30" cy="45" r="4" fill="#333"/>
+  <line x1="22" y1="45" x2="38" y2="45" stroke="#444" stroke-width="0.5"/>
+  <line x1="30" y1="37" x2="30" y2="53" stroke="#444" stroke-width="0.5"/>
+  <circle cx="30" cy="75" r="12" fill="none" stroke="#555" stroke-width="1"/>
+  <circle cx="30" cy="75" r="8" fill="none" stroke="#444" stroke-width="0.5"/>
+  <circle cx="30" cy="75" r="4" fill="#333"/>
+  <line x1="22" y1="75" x2="38" y2="75" stroke="#444" stroke-width="0.5"/>
+  <line x1="30" y1="67" x2="30" y2="83" stroke="#444" stroke-width="0.5"/>
+  <!-- Heatsink fins -->
+  <g stroke="#3a3a4a" stroke-width="0.8" opacity="0.6">
+    <line x1="55" y1="25" x2="55" y2="90"/>
+    <line x1="62" y1="25" x2="62" y2="90"/>
+    <line x1="69" y1="25" x2="69" y2="90"/>
+    <line x1="76" y1="25" x2="76" y2="90"/>
+    <line x1="83" y1="25" x2="83" y2="90"/>
+    <line x1="90" y1="25" x2="90" y2="90"/>
+    <line x1="97" y1="25" x2="97" y2="90"/>
+    <line x1="104" y1="25" x2="104" y2="90"/>
+    <line x1="111" y1="25" x2="111" y2="90"/>
+    <line x1="118" y1="25" x2="118" y2="90"/>
+    <line x1="125" y1="25" x2="125" y2="90"/>
+    <line x1="132" y1="25" x2="132" y2="90"/>
+  </g>
+  <!-- Back panel -->
+  <rect x="140" y="20" width="30" height="75" rx="6" fill="url(#miner-front)" stroke="#3a3a4a" stroke-width="1"/>
+  <!-- Ports -->
+  <rect x="145" y="30" width="20" height="8" rx="2" fill="#1a1a20" stroke="#555" stroke-width="0.5"/>
+  <rect x="145" y="42" width="20" height="8" rx="2" fill="#1a1a20" stroke="#555" stroke-width="0.5"/>
+  <!-- LEDs -->
+  <circle cx="148" cy="60" r="2.5" fill="#00e676" filter="url(#led-glow-g)"/>
+  <circle cx="156" cy="60" r="2.5" fill="#ff8800" filter="url(#led-glow-o)"/>
+  <circle cx="164" cy="60" r="2.5" fill="#00e676" filter="url(#led-glow-g)"/>
+  <!-- Power connector -->
+  <rect x="145" y="70" width="20" height="14" rx="2" fill="#111" stroke="#555" stroke-width="0.5"/>
+  <rect x="149" y="73" width="4" height="3" fill="#ffaa00" opacity="0.6"/>
+  <rect x="155" y="73" width="4" height="3" fill="#ffaa00" opacity="0.6"/>
+  <rect x="161" y="73" width="4" height="3" fill="#ffaa00" opacity="0.6"/>
+  <!-- Label -->
+  <text x="90" y="14" text-anchor="middle" font-family="monospace" font-size="8" fill="#555">ASIC MINER</text>
+  <!-- Hash flow particles -->
+  <circle cx="50" cy="35" r="1" fill="#ff8800" opacity="0.6"/>
+  <circle cx="70" cy="55" r="1" fill="#ff8800" opacity="0.4"/>
+  <circle cx="95" cy="40" r="1.2" fill="#ffaa00" opacity="0.5"/>
+  <circle cx="115" cy="70" r="1" fill="#ff8800" opacity="0.4"/>
+</svg>
