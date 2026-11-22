@@ -10,7 +10,7 @@ var MACHINES_DATA = {
    "hashrate": 865,
    "unit": "TH/s",
    "powerW": 8650,
-   "priceUSD": 10110,
+   "priceUSD": 10445,
    "cooling": "hidro",
    "delivery": {
     "type": "month",
@@ -26,7 +26,7 @@ var MACHINES_DATA = {
    "hashrate": 860,
    "unit": "TH/s",
    "powerW": 11180,
-   "priceUSD": 7645,
+   "priceUSD": 7980,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -40,7 +40,7 @@ var MACHINES_DATA = {
    "hashrate": 660,
    "unit": "TH/s",
    "powerW": 8250,
-   "priceUSD": 8615,
+   "priceUSD": 8950,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -55,7 +55,7 @@ var MACHINES_DATA = {
    "hashrate": 620,
    "unit": "TH/s",
    "powerW": 8990,
-   "priceUSD": 5665,
+   "priceUSD": 6000,
    "cooling": "hidro",
    "delivery": {
     "type": "relative",
@@ -71,7 +71,7 @@ var MACHINES_DATA = {
    "hashrate": 600,
    "unit": "TH/s",
    "powerW": 5340,
-   "priceUSD": 15035,
+   "priceUSD": 15370,
    "cooling": "hidro",
    "delivery": {
     "type": "month",
@@ -87,7 +87,7 @@ var MACHINES_DATA = {
    "hashrate": 576,
    "unit": "TH/s",
    "powerW": 7200,
-   "priceUSD": 7650,
+   "priceUSD": 7985,
    "cooling": "hidro",
    "delivery": {
     "type": "relative",
@@ -103,7 +103,7 @@ var MACHINES_DATA = {
    "hashrate": 563,
    "unit": "TH/s",
    "powerW": 5348,
-   "priceUSD": 12440,
+   "priceUSD": 12775,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -117,7 +117,7 @@ var MACHINES_DATA = {
    "hashrate": 550,
    "unit": "TH/s",
    "powerW": 7425,
-   "priceUSD": 6275,
+   "priceUSD": 6610,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -131,7 +131,7 @@ var MACHINES_DATA = {
    "hashrate": 520,
    "unit": "TH/s",
    "powerW": 7020,
-   "priceUSD": 5900,
+   "priceUSD": 6235,
    "cooling": "aire",
    "delivery": {
     "type": "relative",
@@ -147,7 +147,7 @@ var MACHINES_DATA = {
    "hashrate": 515,
    "unit": "TH/s",
    "powerW": 7468,
-   "priceUSD": 5070,
+   "priceUSD": 5405,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -161,7 +161,7 @@ var MACHINES_DATA = {
    "hashrate": 500,
    "unit": "TH/s",
    "powerW": 6750,
-   "priceUSD": 5510,
+   "priceUSD": 5845,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -176,7 +176,7 @@ var MACHINES_DATA = {
    "hashrate": 495,
    "unit": "TH/s",
    "powerW": 5940,
-   "priceUSD": 5580,
+   "priceUSD": 5915,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -190,7 +190,7 @@ var MACHINES_DATA = {
    "hashrate": 482,
    "unit": "TH/s",
    "powerW": 6989,
-   "priceUSD": 4720,
+   "priceUSD": 5055,
    "cooling": "hidro",
    "delivery": {
     "type": "relative",
@@ -206,7 +206,7 @@ var MACHINES_DATA = {
    "hashrate": 476,
    "unit": "TH/s",
    "powerW": 6902,
-   "priceUSD": 4715,
+   "priceUSD": 5050,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -220,7 +220,7 @@ var MACHINES_DATA = {
    "hashrate": 450,
    "unit": "TH/s",
    "powerW": 6975,
-   "priceUSD": 3800,
+   "priceUSD": 4135,
    "cooling": "hidro",
    "delivery": {
     "type": "relative",
@@ -236,7 +236,7 @@ var MACHINES_DATA = {
    "hashrate": 430,
    "unit": "TH/s",
    "powerW": 5590,
-   "priceUSD": 3860,
+   "priceUSD": 4195,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -250,7 +250,7 @@ var MACHINES_DATA = {
    "hashrate": 408,
    "unit": "TH/s",
    "powerW": 7344,
-   "priceUSD": 3110,
+   "priceUSD": 3445,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -264,7 +264,7 @@ var MACHINES_DATA = {
    "hashrate": 402,
    "unit": "TH/s",
    "powerW": 6834,
-   "priceUSD": 3190,
+   "priceUSD": 3525,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -278,7 +278,7 @@ var MACHINES_DATA = {
    "hashrate": 395,
    "unit": "TH/s",
    "powerW": 5925,
-   "priceUSD": 2505,
+   "priceUSD": 2840,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -293,7 +293,7 @@ var MACHINES_DATA = {
    "hashrate": 395,
    "unit": "TH/s",
    "powerW": 5925,
-   "priceUSD": 2900,
+   "priceUSD": 3235,
    "cooling": "hidro",
    "delivery": {
     "type": "month",
@@ -308,7 +308,7 @@ var MACHINES_DATA = {
    "hashrate": 368,
    "unit": "TH/s",
    "powerW": 7323,
-   "priceUSD": 2100,
+   "priceUSD": 2435,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -322,7 +322,7 @@ var MACHINES_DATA = {
    "hashrate": 358,
    "unit": "TH/s",
    "powerW": 5370,
-   "priceUSD": 2625,
+   "priceUSD": 2960,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -336,7 +336,7 @@ var MACHINES_DATA = {
    "hashrate": 332,
    "unit": "TH/s",
    "powerW": 5644,
-   "priceUSD": 1830,
+   "priceUSD": 2165,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -350,7 +350,7 @@ var MACHINES_DATA = {
    "hashrate": 322,
    "unit": "TH/s",
    "powerW": 4991,
-   "priceUSD": 2815,
+   "priceUSD": 3150,
    "cooling": "inmersión",
    "delivery": {
     "type": "relative",
@@ -366,7 +366,7 @@ var MACHINES_DATA = {
    "hashrate": 318,
    "unit": "TH/s",
    "powerW": 5406,
-   "priceUSD": 2590,
+   "priceUSD": 2925,
    "cooling": "inmersión",
    "delivery": {
     "type": "ready",
@@ -380,7 +380,7 @@ var MACHINES_DATA = {
    "hashrate": 310,
    "unit": "TH/s",
    "powerW": 5270,
-   "priceUSD": 1700,
+   "priceUSD": 2035,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -394,7 +394,7 @@ var MACHINES_DATA = {
    "hashrate": 300,
    "unit": "TH/s",
    "powerW": 4050,
-   "priceUSD": 2585,
+   "priceUSD": 2920,
    "cooling": "inmersión",
    "delivery": {
     "type": "ready",
@@ -408,7 +408,7 @@ var MACHINES_DATA = {
    "hashrate": 293,
    "unit": "TH/s",
    "powerW": 5567,
-   "priceUSD": 1390,
+   "priceUSD": 1725,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -422,7 +422,7 @@ var MACHINES_DATA = {
    "hashrate": 288,
    "unit": "TH/s",
    "powerW": 4896,
-   "priceUSD": 1515,
+   "priceUSD": 1850,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -436,7 +436,7 @@ var MACHINES_DATA = {
    "hashrate": 279,
    "unit": "TH/s",
    "powerW": 5301,
-   "priceUSD": 1310,
+   "priceUSD": 1645,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -450,7 +450,7 @@ var MACHINES_DATA = {
    "hashrate": 270,
    "unit": "TH/s",
    "powerW": 3645,
-   "priceUSD": 3195,
+   "priceUSD": 3530,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -464,7 +464,7 @@ var MACHINES_DATA = {
    "hashrate": 266,
    "unit": "TH/s",
    "powerW": 5054,
-   "priceUSD": 1240,
+   "priceUSD": 1575,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -478,7 +478,7 @@ var MACHINES_DATA = {
    "hashrate": 260,
    "unit": "TH/s",
    "powerW": 3874,
-   "priceUSD": 3375,
+   "priceUSD": 3710,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -493,7 +493,7 @@ var MACHINES_DATA = {
    "hashrate": 258,
    "unit": "TH/s",
    "powerW": 3483,
-   "priceUSD": 3380,
+   "priceUSD": 3715,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -507,7 +507,7 @@ var MACHINES_DATA = {
    "hashrate": 256,
    "unit": "TH/s",
    "powerW": 5376,
-   "priceUSD": 1155,
+   "priceUSD": 1490,
    "cooling": "inmersión",
    "delivery": {
     "type": "ready",
@@ -521,7 +521,7 @@ var MACHINES_DATA = {
    "hashrate": 256,
    "unit": "TH/s",
    "powerW": 3200,
-   "priceUSD": 3840,
+   "priceUSD": 4175,
    "cooling": "aire",
    "delivery": {
     "type": "relative",
@@ -537,7 +537,7 @@ var MACHINES_DATA = {
    "hashrate": 245,
    "unit": "TH/s",
    "powerW": 3675,
-   "priceUSD": 2270,
+   "priceUSD": 2605,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -551,7 +551,7 @@ var MACHINES_DATA = {
    "hashrate": 240,
    "unit": "TH/s",
    "powerW": 3000,
-   "priceUSD": 3645,
+   "priceUSD": 3980,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -565,7 +565,7 @@ var MACHINES_DATA = {
    "hashrate": 239,
    "unit": "TH/s",
    "powerW": 3824,
-   "priceUSD": 1815,
+   "priceUSD": 2150,
    "cooling": "inmersión",
    "delivery": {
     "type": "ready",
@@ -579,7 +579,7 @@ var MACHINES_DATA = {
    "hashrate": 238,
    "unit": "TH/s",
    "powerW": 3213,
-   "priceUSD": 3120,
+   "priceUSD": 3455,
    "cooling": "aire",
    "delivery": {
     "type": "relative",
@@ -595,7 +595,7 @@ var MACHINES_DATA = {
    "hashrate": 235,
    "unit": "TH/s",
    "powerW": 3878,
-   "priceUSD": 1840,
+   "priceUSD": 2175,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -609,7 +609,7 @@ var MACHINES_DATA = {
    "hashrate": 234,
    "unit": "TH/s",
    "powerW": 3510,
-   "priceUSD": 2115,
+   "priceUSD": 2445,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -623,7 +623,7 @@ var MACHINES_DATA = {
    "hashrate": 227,
    "unit": "TH/s",
    "powerW": 3632,
-   "priceUSD": 1720,
+   "priceUSD": 2055,
    "cooling": "inmersión",
    "delivery": {
     "type": "ready",
@@ -637,7 +637,7 @@ var MACHINES_DATA = {
    "hashrate": 226,
    "unit": "TH/s",
    "powerW": 3503,
-   "priceUSD": 2325,
+   "priceUSD": 2660,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -651,7 +651,7 @@ var MACHINES_DATA = {
    "hashrate": 225,
    "unit": "TH/s",
    "powerW": 3712,
-   "priceUSD": 1640,
+   "priceUSD": 1975,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -665,7 +665,7 @@ var MACHINES_DATA = {
    "hashrate": 220,
    "unit": "TH/s",
    "powerW": 3520,
-   "priceUSD": 1655,
+   "priceUSD": 1990,
    "cooling": "inmersión",
    "delivery": {
     "type": "ready",
@@ -679,7 +679,7 @@ var MACHINES_DATA = {
    "hashrate": 220,
    "unit": "TH/s",
    "powerW": 3300,
-   "priceUSD": 1985,
+   "priceUSD": 2320,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -693,7 +693,7 @@ var MACHINES_DATA = {
    "hashrate": 220,
    "unit": "TH/s",
    "powerW": 3190,
-   "priceUSD": 2555,
+   "priceUSD": 2890,
    "cooling": "aire",
    "delivery": {
     "type": "relative",
@@ -709,7 +709,7 @@ var MACHINES_DATA = {
    "hashrate": 216,
    "unit": "TH/s",
    "powerW": 3564,
-   "priceUSD": 1565,
+   "priceUSD": 1900,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -723,7 +723,7 @@ var MACHINES_DATA = {
    "hashrate": 209,
    "unit": "TH/s",
    "powerW": 3720,
-   "priceUSD": 1615,
+   "priceUSD": 1950,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -737,7 +737,7 @@ var MACHINES_DATA = {
    "hashrate": 206,
    "unit": "TH/s",
    "powerW": 3193,
-   "priceUSD": 2105,
+   "priceUSD": 2440,
    "cooling": "aire",
    "delivery": {
     "type": "relative",
@@ -753,7 +753,7 @@ var MACHINES_DATA = {
    "hashrate": 151,
    "unit": "TH/s",
    "powerW": 3246,
-   "priceUSD": 710,
+   "priceUSD": 1045,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -767,7 +767,7 @@ var MACHINES_DATA = {
    "hashrate": 143,
    "unit": "TH/s",
    "powerW": 3074,
-   "priceUSD": 665,
+   "priceUSD": 1000,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -781,7 +781,7 @@ var MACHINES_DATA = {
    "hashrate": 141,
    "unit": "TH/s",
    "powerW": 3032,
-   "priceUSD": 675,
+   "priceUSD": 1005,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -795,7 +795,7 @@ var MACHINES_DATA = {
    "hashrate": 134,
    "unit": "TH/s",
    "powerW": 2881,
-   "priceUSD": 615,
+   "priceUSD": 950,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -809,7 +809,7 @@ var MACHINES_DATA = {
    "hashrate": 120,
    "unit": "TH/s",
    "powerW": 3300,
-   "priceUSD": 585,
+   "priceUSD": 920,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -823,7 +823,7 @@ var MACHINES_DATA = {
    "hashrate": 120,
    "unit": "TH/s",
    "powerW": 2760,
-   "priceUSD": 645,
+   "priceUSD": 980,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -837,7 +837,7 @@ var MACHINES_DATA = {
    "hashrate": 115,
    "unit": "TH/s",
    "powerW": 2645,
-   "priceUSD": 655,
+   "priceUSD": 990,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -851,7 +851,7 @@ var MACHINES_DATA = {
    "hashrate": 110,
    "unit": "TH/s",
    "powerW": 3245,
-   "priceUSD": 520,
+   "priceUSD": 855,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -865,7 +865,7 @@ var MACHINES_DATA = {
    "hashrate": 110,
    "unit": "TH/s",
    "powerW": 2530,
-   "priceUSD": 630,
+   "priceUSD": 965,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -879,7 +879,7 @@ var MACHINES_DATA = {
    "hashrate": 110,
    "unit": "TH/s",
    "powerW": 1650,
-   "priceUSD": 1985,
+   "priceUSD": 2320,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -893,7 +893,7 @@ var MACHINES_DATA = {
    "hashrate": 105,
    "unit": "TH/s",
    "powerW": 2415,
-   "priceUSD": 605,
+   "priceUSD": 940,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -907,7 +907,7 @@ var MACHINES_DATA = {
    "hashrate": 105,
    "unit": "TH/s",
    "powerW": 1650,
-   "priceUSD": 1615,
+   "priceUSD": 1950,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -921,7 +921,7 @@ var MACHINES_DATA = {
    "hashrate": 104,
    "unit": "TH/s",
    "powerW": 3068,
-   "priceUSD": 510,
+   "priceUSD": 845,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -935,7 +935,7 @@ var MACHINES_DATA = {
    "hashrate": 100,
    "unit": "TH/s",
    "powerW": 2950,
-   "priceUSD": 495,
+   "priceUSD": 830,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -949,7 +949,7 @@ var MACHINES_DATA = {
    "hashrate": 90,
    "unit": "TH/s",
    "powerW": 1674,
-   "priceUSD": 1625,
+   "priceUSD": 1960,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -963,7 +963,7 @@ var MACHINES_DATA = {
    "hashrate": 37.5,
    "unit": "TH/s",
    "powerW": 800,
-   "priceUSD": 1155,
+   "priceUSD": 1490,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -977,7 +977,7 @@ var MACHINES_DATA = {
    "hashrate": 6,
    "unit": "TH/s",
    "powerW": 140,
-   "priceUSD": 605,
+   "priceUSD": 940,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -991,7 +991,7 @@ var MACHINES_DATA = {
    "hashrate": 4,
    "unit": "TH/s",
    "powerW": 140,
-   "priceUSD": 475,
+   "priceUSD": 810,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1005,7 +1005,7 @@ var MACHINES_DATA = {
    "hashrate": 840,
    "unit": "kSol/s",
    "powerW": 2780,
-   "priceUSD": 7635,
+   "priceUSD": 7970,
    "cooling": "aire",
    "delivery": {
     "type": "month",
@@ -1021,7 +1021,7 @@ var MACHINES_DATA = {
    "hashrate": 840,
    "unit": "kSol/s",
    "powerW": 2780,
-   "priceUSD": 9135,
+   "priceUSD": 9470,
    "cooling": "aire",
    "delivery": {
     "type": "month",
@@ -1037,7 +1037,7 @@ var MACHINES_DATA = {
    "hashrate": 565,
    "unit": "kSol/s",
    "powerW": 2672,
-   "priceUSD": 7635,
+   "priceUSD": 7970,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1051,7 +1051,7 @@ var MACHINES_DATA = {
    "hashrate": 525,
    "unit": "kSol/s",
    "powerW": 2483,
-   "priceUSD": 4635,
+   "priceUSD": 4970,
    "cooling": "aire",
    "delivery": {
     "type": "month",
@@ -1067,7 +1067,7 @@ var MACHINES_DATA = {
    "hashrate": 525,
    "unit": "kSol/s",
    "powerW": 2483,
-   "priceUSD": 5135,
+   "priceUSD": 5470,
    "cooling": "aire",
    "delivery": {
     "type": "month",
@@ -1083,7 +1083,7 @@ var MACHINES_DATA = {
    "hashrate": 20,
    "unit": "GH/s",
    "powerW": 6200,
-   "priceUSD": 1935,
+   "priceUSD": 2270,
    "cooling": "hidro",
    "delivery": {
     "type": "ready",
@@ -1097,7 +1097,7 @@ var MACHINES_DATA = {
    "hashrate": 20,
    "unit": "GH/s",
    "powerW": 3680,
-   "priceUSD": 5335,
+   "priceUSD": 5670,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1111,7 +1111,7 @@ var MACHINES_DATA = {
    "hashrate": 17,
    "unit": "GH/s",
    "powerW": 3570,
-   "priceUSD": 3235,
+   "priceUSD": 3570,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1125,7 +1125,7 @@ var MACHINES_DATA = {
    "hashrate": 16.5,
    "unit": "GH/s",
    "powerW": 3465,
-   "priceUSD": 2885,
+   "priceUSD": 3220,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1139,7 +1139,7 @@ var MACHINES_DATA = {
    "hashrate": 16,
    "unit": "GH/s",
    "powerW": 3360,
-   "priceUSD": 2835,
+   "priceUSD": 3170,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1153,7 +1153,7 @@ var MACHINES_DATA = {
    "hashrate": 15,
    "unit": "GH/s",
    "powerW": 3150,
-   "priceUSD": 2435,
+   "priceUSD": 2770,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1167,7 +1167,7 @@ var MACHINES_DATA = {
    "hashrate": 14,
    "unit": "GH/s",
    "powerW": 3920,
-   "priceUSD": 1535,
+   "priceUSD": 1870,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1181,7 +1181,7 @@ var MACHINES_DATA = {
    "hashrate": 13.5,
    "unit": "GH/s",
    "powerW": 3640,
-   "priceUSD": 1485,
+   "priceUSD": 1820,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1195,7 +1195,7 @@ var MACHINES_DATA = {
    "hashrate": 13,
    "unit": "GH/s",
    "powerW": 3640,
-   "priceUSD": 1635,
+   "priceUSD": 1970,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1209,7 +1209,7 @@ var MACHINES_DATA = {
    "hashrate": 9.05,
    "unit": "GH/s",
    "powerW": 3425,
-   "priceUSD": 995,
+   "priceUSD": 1330,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1223,7 +1223,7 @@ var MACHINES_DATA = {
    "hashrate": 8.8,
    "unit": "GH/s",
    "powerW": 3425,
-   "priceUSD": 975,
+   "priceUSD": 1310,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1237,7 +1237,7 @@ var MACHINES_DATA = {
    "hashrate": 6,
    "unit": "GH/s",
    "powerW": 1400,
-   "priceUSD": 1455,
+   "priceUSD": 1790,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1251,7 +1251,7 @@ var MACHINES_DATA = {
    "hashrate": 2.4,
    "unit": "GH/s",
    "powerW": 552,
-   "priceUSD": 935,
+   "priceUSD": 1270,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1265,7 +1265,7 @@ var MACHINES_DATA = {
    "hashrate": 2.2,
    "unit": "GH/s",
    "powerW": 500,
-   "priceUSD": 835,
+   "priceUSD": 1170,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1279,7 +1279,7 @@ var MACHINES_DATA = {
    "hashrate": 2.1,
    "unit": "GH/s",
    "powerW": 620,
-   "priceUSD": 785,
+   "priceUSD": 1120,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
@@ -1293,7 +1293,7 @@ var MACHINES_DATA = {
    "hashrate": 1.2,
    "unit": "GH/s",
    "powerW": 280,
-   "priceUSD": 705,
+   "priceUSD": 1040,
    "cooling": "aire",
    "delivery": {
     "type": "ready",
