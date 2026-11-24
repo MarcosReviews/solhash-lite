@@ -3,178 +3,253 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>SolHash — ¿Te sale rentable minar?</title>
-    <meta name="description" content="Responde 4 preguntas y descubre qué máquina de minería te conviene, cuánto ganarías al mes y en cuánto tiempo la recuperas.">
-    <meta name="theme-color" content="#0b0b0f">
+    <title>SolHash Lite · ¿Te sale rentable minar Bitcoin?</title>
+    <meta name="description" content="Calcula gratis si te sale rentable minar Bitcoin con placas solares o con la luz de tu casa: datos de sol reales de tu municipio, máquinas con precio actual y lo que generan al día, al mes y al año.">
+    <meta property="og:title" content="SolHash Lite · ¿Te sale rentable minar Bitcoin?">
+    <meta property="og:description" content="Calculadora gratuita de minería de Bitcoin con energía solar, de Marcos Reviews.">
+    <meta property="og:image" content="https://solhash-lite.vercel.app/assets/logo-solhash.png">
+    <meta property="og:url" content="https://solhash-lite.vercel.app/">
     <link rel="icon" href="assets/logo-solhash.png">
+    <script>(function(){try{var t=localStorage.getItem('solhash_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})()</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="simple.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+    <link rel="stylesheet" href="v2.css">
 </head>
 <body>
-    <div class="glow" aria-hidden="true"></div>
+<div id="app" class="app">
 
-    <header class="top">
-        <a class="brand" href="./" aria-label="SolHash, inicio">
-            <img src="assets/logo-solhash.png" alt="" width="28" height="28">
-            <span>SolHash</span>
+    <header class="bar">
+        <a class="brand" href="./" aria-label="SolHash Lite, inicio">
+            <img src="assets/logo-solhash.png" alt="" width="30" height="30">
+            <span>SolHash <b>Lite</b></span>
         </a>
-        <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-        <button type="button" class="back" id="back" hidden>← Atrás</button>
+        <div class="bar-right">
+            <span class="live" id="live" title="Precio de Bitcoin que usa el cálculo"><i></i><span id="live-price">—</span></span>
+            <div class="cur-seg" id="cur-seg" role="group" aria-label="Moneda">
+                <button type="button" data-cur="EUR" aria-label="Euros">€</button><button type="button" data-cur="USD" aria-label="Dólares">$</button>
+            </div>
+            <button type="button" class="icon-btn" id="theme-btn" aria-label="Cambiar entre modo claro y oscuro">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            </button>
+            <a class="link-btn" href="https://www.startminingnow.es/solhash" target="_blank" rel="noopener" id="classic-link">SolHash Pro</a>
+        </div>
     </header>
 
-    <main id="stage">
+    <nav class="steps" id="steps" aria-label="Pasos">
+        <button type="button" data-go="situacion"><i>1</i><span>Tu punto de partida</span></button>
+        <button type="button" data-go="presupuesto"><i>2</i><span>Presupuesto</span></button>
+        <button type="button" data-go="ubicacion"><i>3</i><span>Ubicación</span></button>
+        <button type="button" data-go="luz"><i>4</i><span>Tu luz</span></button>
+        <button type="button" data-go="maquinas"><i>5</i><span>Tu proyecto</span></button>
+        <button type="button" data-go="resultado"><i>6</i><span>Resultado</span></button>
+    </nav>
 
-        <!-- Inicio -->
-        <section class="screen is-active" data-screen="intro">
-            <!-- Portada animada: entra luz → la máquina trabaja → recibes monedas -->
-            <div class="scene" aria-hidden="true">
-                <svg id="scene-svg" viewBox="0 0 360 190">
-                    <defs>
-                        <radialGradient id="coinG" cx="35%" cy="30%" r="80%">
-                            <stop offset="0" stop-color="#ffe2a3"/><stop offset=".55" stop-color="#ff9a1a"/><stop offset="1" stop-color="#b85300"/>
-                        </radialGradient>
-                        <linearGradient id="minerG" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0" stop-color="#262633"/><stop offset="1" stop-color="#15151c"/>
-                        </linearGradient>
-                        <path id="p-in" d="M78 88 H128"/>
-                        <path id="p-out" d="M232 88 H284"/>
-                    </defs>
+    <main id="main">
 
-                    <!-- cables -->
-                    <path class="wire" d="M78 88 H128"/>
-                    <path class="wire" d="M232 88 H284"/>
-
-                    <!-- luz -->
-                    <g class="node">
-                        <circle cx="48" cy="88" r="30"/>
-                        <path class="bolt" d="M53 68 38 92h10l-5 17 17-26H49z"/>
-                    </g>
-                    <circle class="spark" r="4"><animateMotion dur="1.1s" repeatCount="indefinite"><mpath href="#p-in"/></animateMotion></circle>
-                    <circle class="spark" r="4"><animateMotion dur="1.1s" begin="0.55s" repeatCount="indefinite"><mpath href="#p-in"/></animateMotion></circle>
-
-                    <!-- máquina -->
-                    <g class="miner">
-                        <rect x="128" y="50" width="104" height="76" rx="14" fill="url(#minerG)"/>
-                        <circle class="led" cx="218" cy="62" r="3"/>
-                        <rect x="140" y="58" width="34" height="4" rx="2" fill="#3a3a4c"/>
-                        <g class="fan" style="transform-origin:158px 96px"><circle cx="158" cy="96" r="18"/><path d="M158 96v-15a6 6 0 0 1 6 6zM158 96l13 7.5a6 6 0 0 1-8.2 2.2zM158 96l-13 7.5a6 6 0 0 1 2.2-8.2z"/></g>
-                        <g class="fan" style="transform-origin:202px 96px"><circle cx="202" cy="96" r="18"/><path d="M202 96v-15a6 6 0 0 1 6 6zM202 96l13 7.5a6 6 0 0 1-8.2 2.2zM202 96l-13 7.5a6 6 0 0 1 2.2-8.2z"/></g>
-                    </g>
-
-                    <!-- monedas saliendo -->
-                    <circle class="coin" r="7" fill="url(#coinG)"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#p-out"/></animateMotion></circle>
-                    <circle class="coin" r="7" fill="url(#coinG)"><animateMotion dur="1.8s" begin="0.9s" repeatCount="indefinite"><mpath href="#p-out"/></animateMotion></circle>
-
-                    <!-- tus monedas -->
-                    <g class="node wallet" id="scene-wallet" style="transform-origin:312px 88px">
-                        <circle cx="312" cy="88" r="30"/>
-                        <circle cx="312" cy="88" r="15" fill="url(#coinG)"/>
-                        <path d="M312 79v18M307 83.5h7.5a3 3 0 0 1 0 6H307h8a3 3 0 0 1 0 6h-8" fill="none" stroke="#3a1c00" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </g>
-
-                    <text x="48" y="150">Entra luz</text>
-                    <text x="180" y="150">La máquina trabaja</text>
-                    <text x="312" y="150">Recibes monedas</text>
-                    <text class="plus" id="scene-plus" x="312" y="44">+1</text>
-                </svg>
-            </div>
-            <h1>¿Te sale rentable<br>minar criptomonedas?</h1>
-            <p class="lead">Responde 4 preguntas y te digo qué máquina te conviene, cuánto ganarías al mes y en cuánto tiempo la recuperas.</p>
-            <button type="button" class="btn-main" data-next>Empezar</button>
-            <p class="fine">Sin registro · Sin tecnicismos · Precios y datos reales de hoy</p>
-        </section>
-
-        <!-- 1. Zona -->
-        <section class="screen" data-screen="zona" data-step="1">
-            <p class="kicker">Pregunta 1 de 4</p>
-            <h2>¿Desde dónde vas a minar?</h2>
-            <p class="hint">Así te enseño los números en tu moneda.</p>
-            <div class="choices">
-                <button type="button" class="choice" data-set="zona" data-val="eu">
-                    <span class="ico">🇪🇸</span><span><b>España o Europa</b><small>Te lo calculo en euros (€)</small></span>
+        <!-- 1. Situación -->
+        <section class="step" data-step="situacion">
+            <h1>¿Con qué energía vas a minar?</h1>
+            <p class="lead">Elige lo que más se parece a tu caso. Podrás cambiarlo en cualquier momento.</p>
+            <div class="tiles" role="radiogroup" aria-label="Tu instalación">
+                <button type="button" class="tile" data-set="situacion" data-val="casa" role="radio">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 24 24 9l18 15"/><path d="M11 21v18h26V21"/><path d="m15 20 7-6h12l-7 6z" class="fill"/></svg>
+                    <b>Tengo placas en mi casa</b>
+                    <small>Quiero minar con lo que me sobra después de mi consumo</small>
                 </button>
-                <button type="button" class="choice" data-set="zona" data-val="latam">
-                    <span class="ico">🌎</span><span><b>Latinoamérica u otro país</b><small>Te lo calculo en dólares ($)</small></span>
+                <button type="button" class="tile" data-set="situacion" data-val="dedicada" role="radio">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="m6 30 6-14h26l6 14z" class="fill"/><path d="M14 30v8M34 30v8M10 38h28M20 16l-2 14M30 16l2 14M8 23h32"/></svg>
+                    <b>Tengo una instalación para minar</b>
+                    <small>Placas que ya existen y puedo dedicar enteras a las máquinas</small>
+                </button>
+                <button type="button" class="tile" data-set="situacion" data-val="nueva" role="radio">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="m4 32 5-12h22l5 12z" class="fill"/><path d="M12 32v6M28 32v6M8 38h24M38 8v12M32 14h12"/></svg>
+                    <b>Voy a instalar placas</b>
+                    <small>Quiero saber cuántas poner y si me compensa</small>
+                </button>
+                <button type="button" class="tile" data-set="situacion" data-val="red" role="radio">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 6v10M30 6v10M14 16h20v8a10 10 0 0 1-20 0z" class="fill"/><path d="M24 34v8"/></svg>
+                    <b>No tengo placas</b>
+                    <small>Solo con la luz de la red eléctrica</small>
                 </button>
             </div>
-        </section>
 
-        <!-- 2. Luz -->
-        <section class="screen" data-screen="luz" data-step="2">
-            <p class="kicker">Pregunta 2 de 4</p>
-            <h2>¿Pagas la luz?</h2>
-            <p class="hint">Es lo que más influye: una máquina de minar gasta electricidad las 24 horas.</p>
-            <div class="choices">
-                <button type="button" class="choice" data-set="luz" data-val="gratis">
-                    <span class="ico">🎁</span><span><b>No, me sale gratis</b><small>No pago la electricidad que gastaría</small></span>
-                </button>
-                <button type="button" class="choice" data-set="luz" data-val="se" data-stay>
-                    <span class="ico">🧾</span><span><b>Sí, y sé lo que pago</b><small>Conozco mi precio por kWh</small></span>
-                </button>
-                <button type="button" class="choice" data-set="luz" data-val="nose">
-                    <span class="ico">🤷</span><span><b>Sí, pero no sé cuánto</b><small>Uso un precio típico y luego lo afinamos</small></span>
-                </button>
+            <div class="detail" data-for="casa">
+                <h2>Tu instalación de casa</h2>
+                <div class="field"><label for="casa-kwp">Potencia de tus placas</label>
+                    <div class="range"><input type="range" id="casa-kwp" min="1" max="30" step="0.5" data-bind="casaKwp"><output data-out="casaKwp" data-unit="kWp"></output></div>
+                    <p class="help">Suma la potencia de los paneles. Por ejemplo, 12 paneles de 450 W son 5,4 kWp.</p></div>
+                <div class="field"><span class="label">¿Cuánto consume tu casa al día?</span>
+                    <div class="chips" data-chips="casaConsumo">
+                        <button type="button" data-val="6">Poco<small>6 kWh</small></button>
+                        <button type="button" data-val="10">Normal<small>10 kWh</small></button>
+                        <button type="button" data-val="18">Bastante<small>18 kWh</small></button>
+                        <button type="button" data-val="28">Mucho<small>28 kWh</small></button>
+                    </div>
+                    <p class="help">Lo ves en tu factura: divide los kWh del mes entre 30.</p></div>
+                <div class="field"><label for="casa-bat">Batería que ya tienes</label>
+                    <div class="range"><input type="range" id="casa-bat" min="0" max="40" step="1" data-bind="casaBateria"><output data-out="casaBateria" data-unit="kWh" data-zero="Sin batería"></output></div></div>
             </div>
-            <div class="reveal" id="precio-box" hidden>
-                <label for="precio-kwh">Tu precio por kWh <small>(viene en la factura de la luz)</small></label>
-                <div class="field">
-                    <input type="number" id="precio-kwh" inputmode="decimal" min="0" max="2" step="0.01" placeholder="0,15">
-                    <span class="unit"><span class="cur">€</span>/kWh</span>
+
+            <div class="detail" data-for="dedicada">
+                <h2>Tu instalación actual</h2>
+                <div class="field"><label for="ex-kwp">Potencia de las placas</label>
+                    <div class="range"><input type="range" id="ex-kwp" min="1" max="100" step="0.5" data-bind="existKwp"><output data-out="existKwp" data-unit="kWp"></output></div></div>
+                <div class="field"><label for="ex-kwh">Batería</label>
+                    <div class="range"><input type="range" id="ex-kwh" min="0" max="100" step="1" data-bind="existKwh"><output data-out="existKwh" data-unit="kWh" data-zero="Sin batería"></output></div></div>
+                <details class="more"><summary>¿Vas a ampliarla?</summary>
+                    <div class="field"><label for="add-kwp">Placas nuevas</label>
+                        <div class="range"><input type="range" id="add-kwp" min="0" max="60" step="0.5" data-bind="addKwp"><output data-out="addKwp" data-unit="kWp" data-zero="Ninguna"></output></div></div>
+                    <div class="field"><label for="add-kwh">Batería nueva</label>
+                        <div class="range"><input type="range" id="add-kwh" min="0" max="60" step="1" data-bind="addKwh"><output data-out="addKwh" data-unit="kWh" data-zero="Ninguna"></output></div></div>
+                    <div class="field"><label for="ex-cost">¿Quieres contar lo que te costó la instalación actual?</label>
+                        <div class="num"><input type="number" id="ex-cost" min="0" step="100" inputmode="numeric" data-bind="existCost" data-money="0"><span data-cur-unit="">€</span></div>
+                        <p class="help">Déjalo en 0 si ya está pagada y solo quieres saber si las máquinas compensan.</p></div>
+                </details>
+            </div>
+
+            <div class="detail" data-for="nueva">
+                <h2>Las placas que vas a poner</h2>
+                <div class="chips chips-wide" data-chips="solarMode">
+                    <button type="button" data-val="auto">Diséñala tú por mí<small>No sé de potencias ni baterías: con mi presupuesto, elige placas, inversor, batería y máquinas</small></button>
+                    <button type="button" data-val="manual">Ya sé lo que quiero montar<small>Elijo yo la potencia de las placas y la batería</small></button>
                 </div>
-                <button type="button" class="btn-main" id="precio-ok">Continuar</button>
-            </div>
-            <label class="check"><input type="checkbox" id="solar"><span>Tengo placas solares</span></label>
-        </section>
-
-        <!-- 3. Presupuesto -->
-        <section class="screen" data-screen="dinero" data-step="3">
-            <p class="kicker">Pregunta 3 de 4</p>
-            <h2>¿Cuánto te gustaría invertir?</h2>
-            <p class="hint">Es lo que cuesta la máquina. Se paga una sola vez.</p>
-            <div class="chips" id="chips"></div>
-            <div class="reveal">
-                <label for="otro">O escribe otra cantidad</label>
-                <div class="field">
-                    <input type="number" id="otro" inputmode="numeric" min="100" step="100" placeholder="3000">
-                    <span class="unit cur">€</span>
+                <div data-solar="manual">
+                <div class="field" style="margin-top:20px"><label for="new-kwp">Potencia de las placas</label>
+                    <div class="range"><input type="range" id="new-kwp" min="1" max="60" step="0.5" data-bind="newKwp"><output data-out="newKwp" data-unit="kWp"></output></div>
+                    <p class="help">Si no lo sabes, deja 10 kWp: unos 20 paneles y 50 m² de tejado o suelo.</p></div>
+                <div class="field"><label for="new-kwh">Batería</label>
+                    <div class="range"><input type="range" id="new-kwh" min="0" max="60" step="1" data-bind="newKwh"><output data-out="newKwh" data-unit="kWh" data-zero="Sin batería"></output></div>
+                    <p class="help">La batería guarda sol para que las máquinas sigan de noche, pero encarece mucho la inversión.</p></div>
                 </div>
-                <button type="button" class="btn-main" id="otro-ok">Continuar</button>
+            </div>
+
+            <div class="field when" id="when">
+                <span class="label">¿Cuándo quieres que minen las máquinas?</span>
+                <div class="chips" data-chips="estrategia">
+                    <button type="button" data-val="surplus-only">Solo con mi sol<small>Con sol directo o batería; no compro luz para minar</small></button>
+                    <button type="button" data-val="24h">Día y noche<small>Cuando no hay sol, con luz de la red</small></button>
+                </div>
+                <p class="help">Si no lo tienes claro, empieza con "Solo con mi sol": así nunca pagas luz por minar.</p>
+            </div>
+
+            <div class="detail" data-for="red">
+                <p class="note">Sin placas, todo sale de la factura. Con una tarifa normal casi nunca compensa minar Bitcoin; te lo calculo igualmente para que lo veas con tus números.</p>
             </div>
         </section>
 
-        <!-- 4. Lugar -->
-        <section class="screen" data-screen="lugar" data-step="4">
-            <p class="kicker">Pregunta 4 de 4</p>
-            <h2>¿Dónde la pondrías?</h2>
-            <p class="hint">Las máquinas grandes hacen ruido y dan calor. Según el sitio te recomiendo unas u otras.</p>
-            <div class="choices">
-                <button type="button" class="choice" data-set="lugar" data-val="casa">
-                    <span class="ico">🏠</span><span><b>En casa</b><small>Solo máquinas silenciosas, de enchufe normal</small></span>
-                </button>
-                <button type="button" class="choice" data-set="lugar" data-val="garaje">
-                    <span class="ico">🚪</span><span><b>Garaje, trastero o local</b><small>Un sitio donde el ruido y el calor no molesten</small></span>
-                </button>
-                <button type="button" class="choice" data-set="lugar" data-val="nave">
-                    <span class="ico">🏭</span><span><b>Nave o instalación propia</b><small>Espacio y potencia eléctrica para varias máquinas</small></span>
-                </button>
+        <!-- 2. Presupuesto -->
+        <section class="step" data-step="presupuesto">
+            <h1>¿Cuánto quieres invertir?</h1>
+            <p class="lead" id="budget-lead">Con tu presupuesto te recomiendo el proyecto que más rinde.</p>
+            <div class="chips chips-money" id="budget-chips"></div>
+            <div class="field budget-other"><label for="b-otro">O escribe otra cantidad</label>
+                <div class="num"><input type="number" id="b-otro" min="200" step="100" inputmode="numeric" placeholder="Por ejemplo, 4000"><span data-cur-unit=" sin IVA">€ sin IVA</span></div></div>
+            <section class="guide" id="guide" aria-labelledby="guide-title"></section>
+        </section>
+
+        <!-- 3. Ubicación -->
+        <section class="step" data-step="ubicacion">
+            <h1>¿Dónde están las placas?</h1>
+            <p class="lead">Busca tu municipio o pincha en el mapa. Uso los datos de sol reales de ese punto (PVGIS, de la Comisión Europea).</p>
+            <form class="search" id="loc-form" autocomplete="off">
+                <label class="sr" for="loc-q">Municipio</label>
+                <input type="text" id="loc-q" placeholder="Por ejemplo: Alange, Badajoz" maxlength="120">
+                <button type="submit" class="btn">Buscar</button>
+            </form>
+            <div class="map-wrap">
+                <div id="map" class="map" role="application" aria-label="Mapa: pincha donde están tus placas"></div>
+                <p class="map-hint" id="map-hint">Pincha en el mapa donde están tus placas</p>
+            </div>
+            <p class="status" id="loc-status" role="status"></p>
+            <div class="loc-result" id="loc-result" hidden></div>
+            <details class="more"><summary>¿Prefieres no buscar? Elige tu zona</summary>
+                <div class="chips" data-chips="zona">
+                    <button type="button" data-val="norte">Norte<small>Galicia, Cantábrico</small></button>
+                    <button type="button" data-val="centro">Centro<small>Meseta, Aragón, Cataluña</small></button>
+                    <button type="button" data-val="sur">Sur y Levante<small>Andalucía, Extremadura, Murcia</small></button>
+                    <button type="button" data-val="canarias">Canarias</button>
+                </div></details>
+        </section>
+
+        <!-- 3. Luz -->
+        <section class="step" data-step="luz">
+            <h1>¿Cuánto pagas la luz?</h1>
+            <p class="lead">Importa cuando no hay sol: es lo que cuesta mantener las máquinas encendidas.</p>
+            <div class="bill" id="bill">
+                <div class="bill-cta">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7M9 8h3"/></svg>
+                    <div><b>¿Tienes tu factura a mano?</b><span>Súbela en PDF o hazle una foto y leo tu tarifa y tus precios.</span></div>
+                    <label class="btn btn-sun" for="bill-file" id="bill-btn">Subir factura</label>
+                    <input type="file" id="bill-file" accept="application/pdf,image/*" class="sr">
+                </div>
+                <p class="status" id="bill-status" role="status"></p>
+                <div class="bill-result" id="bill-result" hidden></div>
+                <p class="help bill-privacy">La factura solo se usa para leer los precios: no la guardamos.</p>
+            </div>
+            <p class="or">O elige tu tipo de tarifa</p>
+            <div class="tiles tiles-sm" role="radiogroup" aria-label="Tarifa">
+                <button type="button" class="tile" data-set="tarifa" data-val="2.0td" role="radio"><b>Tarifa normal con horas</b><small>La 2.0TD: más cara de 10 a 14 y de 18 a 22</small></button>
+                <button type="button" class="tile" data-set="tarifa" data-val="fijo" role="radio"><b>Mismo precio todo el día</b><small>Un único precio por kWh</small></button>
+                <button type="button" class="tile" data-set="tarifa" data-val="octopus" role="radio"><b>Noches muy baratas</b><small>Tipo Octopus Go</small></button>
+                <button type="button" class="tile" data-set="tarifa" data-val="gratis" role="radio"><b>No pago la luz</b><small>La electricidad me sale gratis</small></button>
+            </div>
+            <div class="detail" data-for-tarifa="fijo">
+                <div class="field"><label for="t-fijo">Tu precio por kWh</label>
+                    <div class="num"><input type="number" id="t-fijo" min="0" max="1" step="0.005" inputmode="decimal" data-bind="fijo" data-money="4"><span data-cur-unit="/kWh">€/kWh</span></div>
+                    <p class="help">Está en tu factura, en el término de energía.</p></div>
+            </div>
+            <details class="more" id="t-custom"><summary>Ajustar los precios de cada franja</summary>
+                <div class="grid3">
+                    <div class="field"><label for="t-punta">Punta</label><div class="num"><input type="number" id="t-punta" min="0" step="0.005" data-bind="punta" data-money="4"><span data-cur-unit="/kWh">€/kWh</span></div></div>
+                    <div class="field"><label for="t-llano">Llano</label><div class="num"><input type="number" id="t-llano" min="0" step="0.005" data-bind="llano" data-money="4"><span data-cur-unit="/kWh">€/kWh</span></div></div>
+                    <div class="field"><label for="t-valle">Valle</label><div class="num"><input type="number" id="t-valle" min="0" step="0.005" data-bind="valle" data-money="4"><span data-cur-unit="/kWh">€/kWh</span></div></div>
+                </div>
+            </details>
+            <div class="field" data-only="casa">
+                <label for="t-exc">¿Cuánto te pagan por la energía que viertes a la red?</label>
+                <div class="num"><input type="number" id="t-exc" min="0" max="0.3" step="0.005" inputmode="decimal" data-bind="excedentes" data-money="4"><span data-cur-unit="/kWh">€/kWh</span></div>
+                <p class="help">Lo que dejarías de cobrar al usar ese sol para minar. Suele estar entre 0,02 y 0,06 €.</p>
             </div>
         </section>
 
-        <!-- Resultado -->
-        <section class="screen screen-wide" data-screen="resultado">
-            <div id="resultado"></div>
+        <!-- 4. Máquinas -->
+        <section class="step" data-step="maquinas">
+            <h1 id="maq-title">Elige tus máquinas</h1>
+            <p class="lead" id="rec-lead">Estas son las que mejor encajan con tu energía, con los precios de hoy.</p>
+            <div class="recs" id="recs"></div>
+            <div class="picked" id="picked"></div>
+            <details class="more" id="all-miners"><summary>Ver todos los equipos o introducir el mío</summary>
+                <div class="field"><label for="m-select">Todos los equipos de Bitcoin</label>
+                    <select id="m-select"></select></div>
+                <div class="grid3" id="custom-fields" hidden>
+                    <div class="field"><label for="c-th">Potencia de minado</label><div class="num"><input type="number" id="c-th" min="1" step="1" data-bind="cHash"><span>TH/s</span></div></div>
+                    <div class="field"><label for="c-kw">Consumo</label><div class="num"><input type="number" id="c-kw" min="0.05" step="0.01" data-bind="cPower"><span>kW</span></div></div>
+                    <div class="field"><label for="c-eur">Precio</label><div class="num"><input type="number" id="c-eur" min="0" step="10" data-bind="cPrice" data-money="0"><span data-cur-unit="">€</span></div></div>
+                </div>
+            </details>
+        </section>
+
+        <!-- 5. Resultado -->
+        <section class="step step-wide" data-step="resultado">
+            <div id="result"></div>
         </section>
     </main>
 
-    <footer class="foot">
-        <span id="net-info"></span>
-        <span>Estimación orientativa, no es asesoramiento financiero · <a href="https://www.startminingnow.es" target="_blank" rel="noopener">StartMiningNow.es</a></span>
-    </footer>
+    <div class="nav" id="nav">
+        <button type="button" class="btn-ghost" id="prev">Atrás</button>
+        <span class="nav-hint" id="nav-hint"></span>
+        <button type="button" class="btn" id="next">Continuar</button>
+    </div>
+</div>
 
-    <script src="js/machines-data.js"></script>
-    <script src="js/machine-mode.js"></script>
-    <script src="simple.js"></script>
+<script>window.SOLHASH_LITE = true;</script>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/machines-data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/solar-materials.js"></script>
+<script src="js/catalog-sync.js"></script>
+<script src="v2.js"></script>
 </body>
 </html>
