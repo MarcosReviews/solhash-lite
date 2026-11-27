@@ -484,3 +484,27 @@ table.months-t th:first-child, table.months-t td:first-child { text-align: left;
     .gen-btc { margin-top: 0; font-size: 1.25rem; }
     .gen-col:first-child { padding-top: 0; border-top: 0; }
 }
+
+/* Resumen lateral del asistente (escritorio): lo que llevas elegido, como un tique que se va rellenando */
+.side { display: none; }
+@media (min-width: 1100px) {
+    main { display: grid; grid-template-columns: minmax(0, 760px) minmax(0, 1fr); column-gap: 56px; align-items: start; }
+    main > .step { grid-column: 1; grid-row: 1; }
+    .side { display: block; grid-column: 2; grid-row: 1; position: sticky; top: 92px; margin-top: 6px; }
+    .side:empty { display: none; }
+    .app.on-result main { display: block; }
+    .app.on-result .side { display: none; }
+}
+.side h2 { font-size: 1rem; margin-bottom: 10px; }
+.side dl { margin: 0; border-top: 1.5px solid var(--ink); }
+.side-row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+.side-row dt { color: var(--muted); }
+.side-row dd { margin: 0; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.side-row dd button { padding: 0; border: 0; background: none; font-weight: 600; text-align: left; text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+.side-row dd button:hover { text-decoration-color: var(--sun); }
+.side-row.empty dd { color: var(--muted); font-weight: 450; }
+.side-row.here dt { color: var(--sun-ink); font-weight: 650; }
+.side-peek { margin-top: 18px; padding: 18px 20px; border-radius: var(--radius); background: var(--hero); color: var(--hero-text); }
+.side-peek span { display: block; color: var(--hero-soft); font-size: 0.88rem; }
+.side-peek b { display: block; margin: 2px 0; font-size: 1.9rem; font-weight: 780; font-stretch: 112%; letter-spacing: -0.02em; line-height: 1.1; }
+.side-peek small { color: var(--hero-soft); font-size: 0.85rem; }

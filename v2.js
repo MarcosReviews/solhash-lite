@@ -430,6 +430,58 @@
         var ok = stepValid(st.step);
         $('next').disabled = !ok;
         $('nav-hint').textContent = ok ? '' : hint(st.step);
+        renderSide();
+    }
+
+    // Resumen lateral (solo escritorio): lo que llevas elegido y, con máquina, un avance del resultado
+    var sideTimer = null;
+    function renderSide() {
+        var box = $('side');
+        if (!box || st.step === 'resultado') return;
+        clearTimeout(sideTimer);
+        sideTimer = setTimeout(drawSide, 120);   // los deslizadores llaman muchas veces seguidas
+    }
+    function drawSide() {
+        var box = $('side'), sit = st.situacion, rows = [];
+        if (!window.matchMedia('(min-width: 1100px)').matches) { box.innerHTML = ''; return; }
+        var energia = !sit ? null
+            : sit === 'casa' ? 'Placas en casa, ' + num(st.casaKwp, 1) + ' kWp'
+            : sit === 'dedicada' ? 'Instalación de ' + num(st.existKwp + st.addKwp, 1) + ' kWp'
+            : sit === 'nueva' ? (st.solarMode === 'manual' ? 'Placas nuevas, ' + num(st.newKwp, 1) + ' kWp' : 'Placas nuevas, las diseño yo')
+            : 'Solo luz de la red';
+        rows.push(['situacion', 'Energía', energia]);
+        rows.push(['presupuesto', 'Presupuesto', st.presupuesto === null || st.presupuesto === undefined ? null : st.presupuesto > 0 ? eur(st.presupuesto) : 'Sin decidir']);
+        if (sit !== 'red') {
+            var hsp = st.hsp && st.hsp.length === 12 ? st.hsp.reduce(function(x, y) { return x + y; }, 0) / 12 : null;
+            rows.push(['ubicacion', 'Dónde', st.hsp ? st.lugar + (hsp ? ' · ' + num(hsp, 1) + ' h de sol' : '') : st.zona ? (ZONES[st.zona] || ZONES.centro).label : null]);
+        }
+        var pre = TARIFFS[st.tarifa];
+        rows.push(['luz', 'Luz', st.billApplied && st.bill ? 'Tu factura' : st.tarifa === 'fijo' ? kwh(st.fijo, 3) : pre ? pre.label : null]);
+        var m = minerFor(st.minerKey);
+        rows.push(['maquinas', 'Máquinas', m && st.reached >= ORDER.indexOf('maquinas') ? st.qty + ' × ' + m.name : null]);
+
+        var cur = ORDER.indexOf(st.step), html = '<h2>Tu proyecto</h2><dl>';
+        rows.forEach(function(r) {
+            var i = ORDER.indexOf(r[0]), here = r[0] === st.step, can = i <= st.reached && !here;
+            html += '<div class="side-row' + (here ? ' here' : '') + (r[2] ? '' : ' empty') + '">' +
+                '<dt>' + r[1] + '</dt><dd>' + (can ? '<button type="button" data-side="' + r[0] + '">' : '<span>') +
+                esc(r[2] || (i < cur ? 'Sin elegir' : here ? 'Lo estás eligiendo' : 'Más adelante')) + (can ? '</button>' : '</span>') + '</dd></div>';
+        });
+        html += '</dl>';
+
+        // Avance del resultado en cuanto hay máquina elegida
+        var ready = ORDER.slice(0, ORDER.indexOf('maquinas') + 1).every(stepValid) && st.reached >= ORDER.indexOf('maquinas');
+        if (ready) {
+            applyHSP();
+            var c = calc();
+            if (c) {
+                var v = verdict(c);
+                html += '<div class="side-peek"><span>' + v.title + '</span>' +
+                    '<b>' + (c.payback !== null ? months(c.payback) : c.year1 > 0 ? 'Más de 10 años' : 'Pierde dinero') + '</b>' +
+                    '<small>' + (c.payback !== null ? 'para recuperar ' + eur(c.r.totalInvestment) : 'con ' + eur(c.r.totalInvestment) + ' de inversión') + '</small></div>';
+            }
+        }
+        box.innerHTML = html;
     }
 
     // ─── Controles del asistente ───────────────────────────────────────────
@@ -538,6 +590,12 @@
             refreshAll();
         });
     }
+
+    document.addEventListener('click', function(e) {
+        var b = e.target.closest && e.target.closest('[data-side]');
+        if (b) go(b.getAttribute('data-side'));
+    });
+    window.addEventListener('resize', function() { renderSide(); });
 
     function refreshAll() {
         syncControls();
