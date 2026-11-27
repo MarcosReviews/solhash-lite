@@ -992,19 +992,22 @@
 
         var html = summaryHTML(i) +
             '<section class="hero" aria-label="Resultado">' +
-                '<div><p class="kicker">Tu resultado</p><h1 class="' + v.cls + '">' + v.title + '</h1>' +
+                '<div><h1 class="' + v.cls + '">' + v.title + '</h1>' +
                     (c.payback !== null
                         ? '<div class="hero-num">' + months(c.payback).replace(/ (meses|mes|años)$/, '<small>$1</small>') + '</div>'
                         : '<div class="hero-num hero-num-no">' + (c.year1 > 0 ? 'Más de 10 años' : 'Pierde dinero') + '</div>') +
                     '<p class="hero-sub">' + (c.payback !== null ? 'para recuperar todo lo que inviertes. ' : '') + heroText(c) + '</p>' +
+                    // Lo que se gana y el bitcoin del primer año ya salen en la franja de abajo: aquí, lo que no sale en otro sitio
                     '<div class="hero-stats"><div><span>Inversión</span><b>' + eur(r.totalInvestment) + '</b></div>' +
-                    '<div><span>Ganas el primer año</span><b>' + eur(c.year1) + '</b></div>' +
-                    '<div><span>Bitcoin el primer año</span><b>' + btc(c.btc1) + ' BTC</b></div></div></div>' +
-                '<div class="ring-wrap">' + ringSVG(r, ownPct) +
+                    (i.surplusStrategy === 'surplus-only' && r.hoursRunning > 0
+                        ? '<div><span>Máquinas encendidas</span><b>' + num(Math.min(24, r.hoursRunning), 0) + ' h al día</b></div>'
+                        : '<div><span>Luz de la red al año</span><b>' + eur(r.gridCostYear) + '</b></div>') + '</div></div>' +
+                '<figure class="ring-wrap">' + ringSVG(r, ownPct) +
+                    '<figcaption>De dónde sale la luz de las máquinas a cada hora de un día medio</figcaption>' +
                     '<div class="legend"><span><i style="background:#f29a1f"></i>Sol</span><span><i style="background:#2bb38a"></i>Batería</span>' +
-                    '<span><i style="background:#c3d0df"></i>Red, valle</span><span><i style="background:#8ea3bd"></i>Red, llano</span><span><i style="background:#5d7698"></i>Red, punta</span></div></div>' +
+                    '<span><i style="background:#c3d0df"></i>Red, valle</span><span><i style="background:#8ea3bd"></i>Red, llano</span><span><i style="background:#5d7698"></i>Red, punta</span></div></figure>' +
+                genHTML(c) +
             '</section>' +
-            genHTML(c) +
             '<div class="actions">' +
                 (LITE
                     ? '<a class="btn btn-sun" target="_blank" rel="noopener" href="' + waLink(c) + '">Hablar con Marcos por WhatsApp</a>' +
@@ -1022,6 +1025,15 @@
                 (window.MACHINES_DATA ? new Date(MACHINES_DATA.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : '—') +
                 '. Estimación orientativa: no garantiza resultados futuros.</p>';
         $('result').innerHTML = html;
+        // Cada sección se lee en dos columnas: título y explicación a la izquierda, cifras a la derecha
+        qsa('#result .card').forEach(function(card) {
+            var head = document.createElement('div'), body = document.createElement('div');
+            head.className = 'card-head'; body.className = 'card-body';
+            Array.prototype.slice.call(card.children).forEach(function(el, ix) {
+                (ix === 0 || (ix === 1 && el.matches('p.what')) ? head : body).appendChild(el);
+            });
+            card.appendChild(head); card.appendChild(body);
+        });
         bindResult(c);
     }
 
@@ -1034,8 +1046,8 @@
             ['Al mes', 'al ritmo de hoy', day * 30.44, day * 30.44 * price, (day * price - costDay) * 30.44],
             ['El primer año', 'con la red cada vez más exigente', c.btc1, c.rev1, c.year1]
         ];
-        return '<section class="gen" aria-label="Lo que genera">' +
-            '<h2>Lo que genera ' + (q > 1 ? 'tu instalación de ' + q + ' máquinas' : 'tu máquina') + '</h2>' +
+        return '<div class="gen" role="group" aria-labelledby="gen-title">' +
+            '<h2 id="gen-title">Lo que genera ' + (q > 1 ? 'tu instalación de ' + q + ' máquinas' : 'tu máquina') + '</h2>' +
             '<div class="gen-grid">' + cols.map(function(col) {
                 var sats = Math.round(col[2] * 1e8);
                 return '<div class="gen-col"><span class="gen-when">' + col[0] + '<small>' + col[1] + '</small></span>' +
@@ -1045,7 +1057,7 @@
                     '<span class="gen-net ' + (col[4] < 0 ? 'bad' : 'good') + '">Te quedan ' + eurFine(col[4]) + '</span></div>';
             }).join('') + '</div>' +
             '<p class="help">"Te quedan" es lo que generas menos la luz' + (r.gridCostYear > 0 ? '' : ' (en tu caso, gratis)') +
-                (r.maintenanceYear > 0 ? ' y el mantenimiento que has puesto' : '') + '. Bitcoin a ' + eur(price) + '.</p></section>';
+                (r.maintenanceYear > 0 ? ' y el mantenimiento que has puesto' : '') + '. Bitcoin a ' + eur(price) + '.</p></div>';
     }
 
     function summaryHTML(i) {
@@ -1070,7 +1082,8 @@
 
     // Reloj de 24 h: de dónde sale la energía de las máquinas cada hora de un día medio
     function ringSVG(r, ownPct) {
-        var C = 160, R0 = 70, L = 76, gap = 0.012;
+        // Las horas van por fuera del anillo para que no choquen con el porcentaje del centro
+        var C = 170, R0 = 66, L = 72, gap = 0.012;
         var hb = r.hourlyBreakdown, max = 0;
         hb.forEach(function(h) { max = Math.max(max, h.solar + h.battery + h.gridValle + h.gridLlano + h.gridPunta); });
         if (max <= 0) max = 1;
@@ -1093,12 +1106,13 @@
             });
         }
         var labels = [[12, '12 h'], [18, '18 h'], [0, '0 h'], [6, '6 h']].map(function(l) {
-            var a = ang(l[0]), rr = R0 - 14;
-            return '<text x="' + (C + rr * Math.cos(a)).toFixed(1) + '" y="' + (C + rr * Math.sin(a) + 4).toFixed(1) + '" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.55)">' + l[1] + '</text>';
+            // l[0] marca el borde de la hora; la etiqueta se centra en ese borde, por fuera
+            var a = ang(l[0]), rr = R0 + L + 17;
+            return '<text x="' + (C + rr * Math.cos(a)).toFixed(1) + '" y="' + (C + rr * Math.sin(a) + 4).toFixed(1) + '" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.6)">' + l[1] + '</text>';
         }).join('');
-        return '<svg class="ring" viewBox="0 0 320 320" role="img" aria-label="Energía de las máquinas en un día medio: ' + Math.round(ownPct) + ' % propia">' + s + labels +
-            '<text x="160" y="160" text-anchor="middle" font-size="40" font-weight="750" fill="#fff" style="font-stretch:112%">' + Math.round(ownPct) + '%</text>' +
-            '<text x="160" y="182" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.7)">energía propia</text></svg>';
+        return '<svg class="ring" viewBox="0 0 340 340" role="img" aria-label="Energía de las máquinas en un día medio: ' + Math.round(ownPct) + ' % propia">' + s + labels +
+            '<text x="170" y="174" text-anchor="middle" font-size="34" font-weight="750" fill="#fff" style="font-stretch:112%">' + Math.round(ownPct) + '%</text>' +
+            '<text x="170" y="194" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.7)">energía propia</text></svg>';
     }
 
     function moneyCard(c) {
@@ -1117,7 +1131,9 @@
     }
 
     function lineSVG(c) {
-        var W = 920, H = 250, Lp = 64, R = 16, T = 18, B = 30, a = c.acc.map(toCur);
+        // En móvil el gráfico se dibuja más estrecho para que los textos no queden diminutos al escalar
+        var narrow = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
+        var W = narrow ? 400 : 920, H = narrow ? 230 : 250, Lp = narrow ? 50 : 64, R = 16, T = 18, B = 30, a = c.acc.map(toCur);
         var min = Math.min.apply(null, a.concat([0])), max = Math.max.apply(null, a.concat([0]));
         var pad = (max - min) * 0.08 || 1;
         min -= pad; max += pad;
@@ -1132,7 +1148,7 @@
         var d = a.map(function(v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join('');
         s += '<path d="' + d + 'L' + x(10) + ' ' + y(0).toFixed(1) + 'L' + x(0) + ' ' + y(0).toFixed(1) + 'Z" fill="var(--sun-soft)"/>' +
              '<path d="' + d + '" fill="none" stroke="var(--sun)" stroke-width="3" stroke-linejoin="round"/>';
-        for (var i = 0; i <= 10; i++) s += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="' + (i === 0 ? 'start' : i === 10 ? 'end' : 'middle') + '">' + (i === 0 ? 'Hoy' : 'Año ' + i) + '</text>';
+        for (var i = 0; i <= 10; i++) if (!narrow || i % 2 === 0) s += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="' + (i === 0 ? 'start' : i === 10 ? 'end' : 'middle') + '">' + (i === 0 ? 'Hoy' : 'Año ' + i) + '</text>';
         if (c.payback !== null && c.payback <= 120) {
             var px = Lp + (W - Lp - R) * (c.payback / 120);
             s += '<circle cx="' + px.toFixed(1) + '" cy="' + y(0).toFixed(1) + '" r="6" fill="var(--good)"/>' +
@@ -1152,7 +1168,7 @@
         function pc(v) { return v / tot * 100; }
         var extra = '';
         if (c.inputs.surplusStrategy === 'surplus-only') {
-            extra = '<p class="what" style="margin-top:14px">Como solo minan con tu sol, las máquinas funcionan unas <b>' + num(r.hoursRunning, 0) + ' horas al día</b> de media.';
+            extra = '<p class="after">Como solo minan con tu sol, las máquinas funcionan unas <b>' + num(r.hoursRunning, 0) + ' horas al día</b> de media.';
             if (c.inputs.surplusMode) {
                 var sb = SolHash.calculateSurplusBenefit(r, c.inputs);
                 extra += ' Ese sol, vendido a la red, te daría ' + eur(sb.eurIfSoldToGrid) + ' al año; minando te da ' + eur(sb.eurFromSurplus) + (sb.multiplier ? ' (' + num(sb.multiplier, 1) + ' veces más)' : '') + '.';
@@ -1207,7 +1223,7 @@
             '<div class="kvs one"><div><span>Luz y energía por BTC</span><b>' + eur(now.energy) + '</b></div>' +
             (now.maintenance > 0 ? '<div><span>Mantenimiento por BTC</span><b>' + eur(now.maintenance) + '</b></div>' : '') +
             '<div><span>Amortización del equipo por BTC</span><b>' + eur(now.amortization) + '</b></div></div>' +
-            '<p class="what" style="margin:14px 0 0">Ese coste sube con el tiempo: la red se vuelve más difícil y en 2028 hay halving. Con el mismo dinero, en 5 años habrías minado ' + btc(comp.btcMined60) +
+            '<p class="after">Ese coste sube con el tiempo: la red se vuelve más difícil y en 2028 hay halving. Con el mismo dinero, en 5 años habrías minado ' + btc(comp.btcMined60) +
             ' BTC; comprando hoy tendrías ' + btc(comp.hodlBTC) + ' BTC.</p></article>';
     }
 
