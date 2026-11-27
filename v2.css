@@ -276,6 +276,40 @@ select { width: 100%; max-width: 560px; padding: 12px 14px; border: 1.5px solid 
 
 .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 8px; }
 
+/* ¿Cómo hacerlo rentable? */
+.fix-btn { margin: 0 0 24px; }
+.fix-btn:disabled { opacity: 0.6; cursor: progress; background: var(--sun); color: #2a1700; }
+.fix {
+    margin-top: 18px; padding: 28px; border-radius: 22px; border: 1.5px solid var(--sun);
+    background: linear-gradient(var(--sun-soft), var(--sun-soft)), var(--surface); scroll-margin-top: 90px;
+}
+.fix-head h2 { font-size: 1.45rem; margin: 0; }
+.fix-head p { color: var(--text-2); margin: 6px 0 20px; max-width: 46em; }
+.fix-wait { margin: 0; color: var(--text-2); font-weight: 600; }
+.fix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.fix-tip { display: flex; flex-direction: column; gap: 8px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.fix-tip.best { border-color: var(--sun); box-shadow: 0 0 0 1px var(--sun); }
+.fix-tip h3 { margin: 0; font-size: 1.08rem; line-height: 1.3; }
+.fix-tip > p { margin: 0; color: var(--text-2); font-size: 0.93rem; }
+.fix-tip .btn, .fix-tip .btn-sun { margin-top: auto; align-self: flex-start; }
+.fix-tag { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--sun-ink); }
+.fix-res { margin: 4px 0 6px !important; color: var(--text) !important; font-size: 1rem !important; }
+.fix-res b { color: var(--good); font-weight: 750; }
+.fix-res span { display: block; color: var(--muted); font-size: 0.86rem; margin-top: 2px; }
+.fix-note { font-size: 0.82rem !important; color: var(--muted) !important; }
+.fix-none { margin: 0 0 6px; font-weight: 600; }
+.fix-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+.fix-info > div { padding: 16px 20px; border-radius: var(--radius); border: 1px dashed var(--line-strong); }
+.fix-info b { display: block; margin: 4px 0; }
+.fix-info p { margin: 0; color: var(--text-2); font-size: 0.92rem; }
+.fix-foot { margin: 18px 0 0; color: var(--text-2); }
+.fix-foot a { color: var(--sun-ink); font-weight: 650; }
+.fix-undo {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+    margin: 0 0 14px; padding: 12px 16px; border-radius: var(--radius); background: var(--good-soft); color: var(--text);
+}
+@media (max-width: 600px) { .fix { padding: 20px 16px; } }
+
 .grid { margin-top: 28px; }
 .card {
     display: grid; grid-template-columns: minmax(0, 17rem) minmax(0, 1fr); column-gap: 56px; align-items: start;

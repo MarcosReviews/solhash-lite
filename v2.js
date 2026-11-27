@@ -99,7 +99,7 @@
             if (d) { for (var bk in d.budget) budget[bk] = d.budget[bk]; newKwp = d.kwp; newKwh = d.kwh; }
         }
         return {
-            miner: minerFor(key), minerKey: key, qty: qty,
+            miner: o.miner || minerFor(key), minerKey: key, qty: qty,
             solarKWp: sit === 'nueva' ? newKwp : sit === 'dedicada' ? st.addKwp : 0,
             batteryOn: (sit === 'nueva' && newKwh > 0) || (sit === 'dedicada' && st.addKwh > 0),
             batteryKWh: sit === 'nueva' ? newKwh : sit === 'dedicada' ? st.addKwh : 0,
@@ -408,6 +408,7 @@
         for (var i = 0; i < idx; i++) if (!stepValid(ORDER[i])) { step = ORDER[i]; idx = i; break; }
         st.step = step;
         st.reached = Math.max(st.reached, idx);
+        if (step !== 'resultado') fixUndo = null;     // al cambiar datos a mano, el "Deshacer" ya no aplica
         save();
         qsa('.step').forEach(function(s) { s.classList.toggle('active', s.getAttribute('data-step') === step); });
         qsa('#steps button').forEach(function(b, i) {
@@ -1039,6 +1040,320 @@
         return 'Ganas ' + eur(c.year1) + ' el primer año, pero la inversión de ' + eur(r.totalInvestment) + ' no se recupera en 10 años porque los ingresos bajan cada año.';
     }
 
+    // ─── ¿Cómo hacerlo rentable? ──────────────────────────────────────────
+    // Si el resultado no sale (o tarda), se prueban cambios de uno en uno sobre la configuración
+    // del usuario con el mismo motor, y se enseñan solo los que mejoran: otra máquina de Bitcoin,
+    // Zcash, minar solo con sol o día y noche, otra tarifa, más placas, y a qué luz o precio saldría.
+
+    var liveNet = null;      // datos de red del día (Bitcoin y Zcash)
+    var fixUndo = null;      // { snap, label }: estado antes de aplicar un consejo
+    var FIX_TARGET = 36;     // meses: "rentable" para los umbrales de luz y de precio
+
+    /** Calcula con cambios temporales en el estado, sin guardarlos */
+    function withState(patch, fn) {
+        var saved = {}, k;
+        for (k in patch) { saved[k] = st[k]; st[k] = patch[k]; }
+        try { return fn(); } finally { for (k in saved) st[k] = saved[k]; }
+    }
+    function payKey(c) { return c && c.payback !== null ? c.payback : Infinity; }
+    /** Solo cuenta como consejo si recupera la inversión (en 10 años) y al menos un mes antes que ahora */
+    function improves(c, base) {
+        return !!c && c.payback !== null && payKey(c) < payKey(base) - 1;
+    }
+
+    /** Euros al día que da 1 TH/s de Bitcoin hoy, según el propio motor */
+    function btcEurPerTHDay() {
+        var any = Object.keys(SolHash.MINERS).filter(function(k) { return k !== 'custom'; })[0];
+        var inp = quickInputs(any, 0);
+        inp.miner = { name: 'ref', hashrate: 100, powerKW: 1, efficiency: 10, noise: 0, price: 0, cooling: 'aire', ready: true };
+        var r = SolHash.calculate(inp);
+        return r.yearlyBTC / 365 / 100 * SolHash.BTC_PRICE;
+    }
+    /** Meses hasta que llega una máquina en reserva */
+    function deliveryMonths(m) {
+        var d = m.delivery;
+        if (!d || d.type === 'ready') return 0;
+        if (d.type === 'relative') return d.months || 0;
+        if (d.type === 'month' && d.month) {
+            var p = d.month.split('-');
+            return Math.max(0, (new Date(+p[0], +p[1] - 1, 15) - Date.now()) / (30.44 * 86400000));
+        }
+        return 0;
+    }
+    /**
+     * Una máquina de Zcash como "máquina equivalente" para el motor: mismo consumo y precio, y la
+     * potencia de Bitcoin que hoy daría los mismos euros al día. Así el motor reparte su energía
+     * (sol, batería, red) y su coste igual que con cualquier otra. Los ingresos mes a mes se
+     * calculan aparte con el calendario de Zcash (zecCalc).
+     */
+    function zecMiner(m, perTH) {
+        var z = liveNet && liveNet.coins && liveNet.coins.ZEC;
+        if (!z || !(z.nethash > 0) || !(z.priceEUR > 0) || !(z.blockTime > 0) || !(perTH > 0)) return null;
+        var mult = { 'kSol/s': 1e3, 'Sol/s': 1, 'MSol/s': 1e6 }[m.unit];
+        if (!mult) return null;
+        var eurDay = m.hashrate * mult / z.nethash * (86400 / z.blockTime) * z.blockReward * z.priceEUR * 0.98;   // 2 % de pool
+        var toEur = liveNet.usdToEur > 0 ? liveNet.usdToEur : 1 / usdPerEur;
+        return {
+            name: m.name, hashrate: eurDay / perTH, powerKW: m.powerW / 1000, efficiency: 0, noise: 75,
+            price: Math.round(m.priceUSD * toEur), cooling: m.cooling || 'aire', ready: true,
+            zec: { eurDay: eurDay, coinEUR: z.priceEUR, delivery: m.delivery, unit: m.unit, hash: m.hashrate }
+        };
+    }
+
+    /** Meses hasta el siguiente halving de Zcash (bloque 4.406.400, bloques de 75 s) */
+    function zecHalvingMonths() {
+        var z = liveNet && liveNet.coins && liveNet.coins.ZEC, H = 4406400;
+        if (z && z.lastBlock > 0) {
+            var h = z.lastBlock < H ? H : H + Math.ceil((z.lastBlock - H + 1) / 1680000) * 1680000;
+            return (h - z.lastBlock) * 75 / (30.44 * 86400);
+        }
+        return (new Date(2028, 9, 15) - Date.now()) / (30.44 * 86400000);
+    }
+    /**
+     * Zcash mes a mes durante 10 años: la energía y su coste salen del motor (con la máquina
+     * equivalente); los ingresos, del calendario de Zcash: dificultad +20 % al año, halving en su
+     * fecha y la máquina minando solo desde que llega. Los meses en que gasta más de lo que genera, apagada.
+     */
+    function zecCalc(m, strat, perTH) {
+        var zm = zecMiner(m, perTH);
+        if (!zm) return null;
+        var c = calc({ miner: zm, qty: 1, estrategia: strat, ignoreMinerBudget: true });
+        if (!c) return null;
+        var r = c.r, full = zm.zec.eurDay * 365;
+        var frac = full > 0 ? Math.min(1, r.yearlyBTC * SolHash.BTC_PRICE / full) : 0;   // parte del día que mina
+        var opex = (r.gridCostYear + r.maintenanceYear) / 12, delay = deliveryMonths(m), halv = zecHalvingMonths();
+        var inv = r.totalInvestment, cum = -inv, payback = null, year1 = 0;
+        for (var k = 0; k < 120; k++) {
+            var on = Math.min(1, Math.max(0, k + 1 - delay));
+            var cut = k + 1 > halv + 48 ? 0.25 : k + 1 > halv ? 0.5 : 1;
+            var raw = (zm.zec.eurDay * 30.44 * frac * Math.pow(1.2, -(k + 0.5) / 12) * cut - opex) * on;
+            if (k < 12) year1 += raw;
+            var p = Math.max(0, raw), prev = cum;
+            cum += p;
+            if (payback === null && cum >= 0 && p > 0) payback = k + (-prev / p);
+        }
+        return { payback: payback, year1: year1, r: r, inputs: c.inputs, zec: zm, strat: strat, delay: delay };
+    }
+
+    function fixTips(base) {
+        var tips = [], sit = st.situacion, r = base.r;
+
+        // 1. La mejor máquina de Bitcoin para esta misma energía, aunque cueste más
+        var rec = recommend(null)[0];
+        if (rec && (rec.inputs.minerKey !== st.minerKey || rec.inputs.qty !== st.qty) && improves(rec, base)) {
+            tips.push({ tag: 'Máquina', title: 'Cambiar a ' + rec.inputs.qty + ' × ' + rec.inputs.miner.name,
+                text: 'Es la máquina de Bitcoin que mejor sale con tu energía y tu luz. Gasta menos por cada TH/s, así que cada kWh rinde más.',
+                c: rec, label: 'cambiar a ' + rec.inputs.qty + ' × ' + rec.inputs.miner.name,
+                apply: function() { st.minerKey = rec.inputs.minerKey; st.qty = rec.inputs.qty; st.minerManual = true; delete st.budget['bud-miners']; } });
+        }
+
+        // 2. Zcash: hoy paga más por kWh que Bitcoin (también con una tarifa de noches baratas, si paga luz)
+        var perTH = btcEurPerTHDay(), zbest = null;
+        var payingGrid = r.gridYearKWh > 0 && st.tarifa !== 'gratis', OCT = TARIFFS.octopus;
+        var zTariffs = [null].concat(payingGrid && st.tarifa !== 'octopus' ? [{ tarifa: 'octopus', punta: OCT.punta, llano: OCT.llano, valle: OCT.valle }] : []);
+        ((window.MACHINES_DATA && MACHINES_DATA.machines) || []).forEach(function(m) {
+            if (m.coin !== 'ZEC' || /usado/i.test(m.name)) return;
+            (sit === 'red' ? [st.estrategia] : ['surplus-only', '24h']).forEach(function(strat) {
+                zTariffs.forEach(function(tp) {
+                    var c = tp ? withState(tp, function() { return zecCalc(m, strat, perTH); }) : zecCalc(m, strat, perTH);
+                    if (!c) return;
+                    c.tariff = tp;
+                    // Entre opciones parecidas, mejor sin cambiar de tarifa
+                    var key = payKey(c) + (tp ? 1.5 : 0), bkey = zbest ? payKey(zbest) + (zbest.tariff ? 1.5 : 0) : Infinity;
+                    if (key < bkey) zbest = c;
+                });
+            });
+        });
+        if (zbest && improves(zbest, base)) {
+            var z = zbest.zec, d = z.zec.delivery, wait = d && d.type !== 'ready';
+            var how = (zbest.tariff ? ' y una tarifa de noches baratas (tipo Octopus Go)' : '') +
+                (sit !== 'red' && zbest.strat !== st.estrategia ? (zbest.strat === '24h' ? ', minando día y noche' : ', minando solo con sol') : '');
+            tips.push({ tag: 'Zcash', title: 'Minar Zcash con una ' + z.name,
+                text: 'Ahora mismo Zcash paga más que Bitcoin por cada kWh. Con tu misma energía' + how +
+                    ', esta máquina (' + num(z.zec.hash) + ' ' + z.zec.unit + ', ' + num(z.powerKW, 2) + ' kW) generaría unos <b>' + eur(z.zec.eurDay * 30.44) + ' al mes</b> antes de pagar la luz.' +
+                    (wait ? ' Es de reserva (' + esc(d.label) + '): el plazo para recuperar cuenta desde hoy, con la máquina parada hasta que llega.' : ''),
+                note: 'Con Zcash a ' + eur(z.zec.coinEUR) + ' (hoy), dificultad +20 % al año y su halving en ' + monthYear(zecHalvingMonths()) + '. Su precio se mueve más que el de Bitcoin.',
+                c: zbest, cta: { href: waText('Hola Marcos, he hecho el cálculo con SolHash ' + (LITE ? 'Lite' : 'Pro') + ' y me interesa minar Zcash con una ' + z.name + '. ¿Me cuentas precio y plazo de entrega?'), label: 'Preguntar por esta máquina' } });
+        }
+
+        // 3. Cuándo minan: solo con sol o día y noche
+        if (sit !== 'red') {
+            var other = st.estrategia === '24h' ? 'surplus-only' : '24h';
+            var cs = calc({ estrategia: other });
+            if (cs && improves(cs, base)) {
+                tips.push({ tag: 'Horario', title: other === 'surplus-only' ? 'Minar solo con tu sol' : 'Minar también de noche',
+                    text: other === 'surplus-only'
+                        ? 'Ahora las máquinas compran luz cuando no hay sol, y esa luz se come lo que generan. Encendidas solo con tu sol, cada hora que minan es casi gratis.'
+                        : 'Con tu tarifa, la luz de la red por la noche sale lo bastante barata como para que compense tener las máquinas encendidas más horas.',
+                    c: cs, label: other === 'surplus-only' ? 'minar solo con sol' : 'minar día y noche',
+                    apply: function() { st.estrategia = other; } });
+            }
+        }
+
+        // 4. Tarifa con noches baratas
+        var paysGrid = r.gridYearKWh > 0 && st.tarifa !== 'gratis';
+        if (paysGrid && st.tarifa !== 'octopus') {
+            var T = TARIFFS.octopus;
+            var ct = withState({ tarifa: 'octopus', punta: T.punta, llano: T.llano, valle: T.valle }, function() { return calc(); });
+            if (ct && improves(ct, base)) {
+                tips.push({ tag: 'Luz', title: 'Cambiar a una tarifa con noches baratas',
+                    text: 'Tarifas tipo Octopus Go cobran la noche a unos ' + kwh(T.valle, 2) + '. Las máquinas gastan lo mismo, pero pagas mucho menos por cada kWh de la red.',
+                    c: ct, label: 'tarifa con noches baratas',
+                    apply: function() { st.tarifa = 'octopus'; st.punta = T.punta; st.llano = T.llano; st.valle = T.valle; st.billApplied = false; } });
+            }
+        }
+
+        // 5. Más placas (o placas, si no tiene)
+        var B = st.presupuesto > 0 ? st.presupuesto : 10000;
+        if (sit === 'nueva') {
+            var bigger = null;
+            [1.5, 2].forEach(function(f) {
+                var B2 = Math.round(B * f / 500) * 500;
+                var c = withState({ presupuesto: B2 }, function() { return designProject()[0]; });
+                if (c && improves(c, base) && (!bigger || payKey(c) < payKey(bigger))) { bigger = c; bigger.budgetTo = B2; }
+            });
+            if (bigger) tips.push(designTip(bigger, 'Placas', 'Invertir ' + eur(bigger.budgetTo) + ' en lugar de ' + eur(B),
+                'Con más presupuesto te diseño una instalación más grande: ', 'invertir ' + eur(bigger.budgetTo),
+                function() { st.presupuesto = bigger.budgetTo; st.solarMode = 'auto'; st.minerManual = false; applyDesign(bigger); }));
+        } else if (sit === 'red') {
+            var solar = null;
+            [Math.max(B, 6000), Math.max(B, 6000) * 1.5, 15000, 20000].forEach(function(B2) {
+                B2 = Math.round(B2 / 500) * 500;
+                if (solar && payKey(solar) <= 60) return;            // ya hay una que recupera en 5 años
+                var c = withState({ situacion: 'nueva', solarMode: 'auto', presupuesto: B2, estrategia: 'surplus-only' }, function() { return designProject()[0]; });
+                if (c && improves(c, base) && (!solar || payKey(c) < payKey(solar))) { solar = c; solar.budgetTo = B2; }
+            });
+            if (solar) tips.push(designTip(solar, 'Placas', 'Poner placas solares para minar',
+                'Sin placas, todo sale de la factura. Con unos ' + eur(solar.budgetTo) + ' te diseño una instalación con ' , 'poner placas solares',
+                function() { st.situacion = 'nueva'; st.solarMode = 'auto'; st.presupuesto = solar.budgetTo; st.minerManual = false; applyDesign(solar); }));
+        } else if (sit === 'dedicada') {
+            var add = Math.max(2, Math.round(st.existKwp * 0.5 * 2) / 2);
+            var ca = withState({ addKwp: st.addKwp + add }, function() { return calc(); });
+            if (ca && improves(ca, base)) {
+                tips.push({ tag: 'Placas', title: 'Ampliar con ' + num(add, 1) + ' kWp más de placas',
+                    text: 'Más placas significa más horas minando con sol gratis. Unos ' + Math.round(add * 1000 / 595) + ' paneles más, unos ' + num(add * 5, 0) + ' m².',
+                    c: ca, label: 'ampliar ' + num(add, 1) + ' kWp',
+                    apply: function() { st.addKwp = st.addKwp + add; } });
+            }
+        }
+
+        tips.sort(function(a, b) { return (payKey(a.c) - payKey(b.c)) || (b.c.year1 - a.c.year1); });
+        tips = tips.slice(0, 4);
+
+        // Referencias (sin botón): a qué precio de luz y de Bitcoin saldría en unos 3 años
+        if (paysGrid) {
+            var avg = r.gridCostYear / r.gridYearKWh;
+            var at = function(p) { return withState({ tarifa: 'fijo', fijo: p }, function() { return calc(); }); };
+            var c0 = at(0);
+            if (c0 && payKey(c0) <= FIX_TARGET && payKey(at(avg)) > FIX_TARGET) {
+                var lo = 0, hi = avg;
+                for (var it = 0; it < 12; it++) { var mid = (lo + hi) / 2; if (payKey(at(mid)) <= FIX_TARGET) lo = mid; else hi = mid; }
+                var pmax = Math.floor(lo * 1000) / 1000;
+                tips.push(pmax >= 0.03
+                    ? { info: true, tag: 'Luz', title: 'Con la luz a menos de ' + kwh(pmax, 3),
+                        text: 'Por debajo de ese precio por kWh recuperarías la inversión en unos 3 años. Ahora pagas de media ' + kwh(avg, 3) + ' por la luz que usan las máquinas.' }
+                    : { info: true, tag: 'Luz', title: 'Solo con la luz casi gratis',
+                        text: 'Para recuperar la inversión en unos 3 años tendrías que pagar menos de ' + kwh(Math.max(pmax, 0.001), 3) + ' (ahora, ' + kwh(avg, 3) +
+                            ' de media). Por eso la minería compensa sobre todo con placas solares, sobrantes de luz o luz gratis.' });
+            }
+        }
+        var pBtc = btcPriceFor(base, FIX_TARGET);
+        if (pBtc && pBtc > base.price * 1.02 && pBtc <= base.price * 5) {
+            tips.push({ info: true, tag: 'Bitcoin', title: (pBtc > base.price * 2 ? 'Bitcoin tendría que subir a ' : 'Si Bitcoin sube a ') + eur(pBtc),
+                text: 'Con tu misma configuración recuperarías la inversión en unos 3 años si Bitcoin pasa de ' + eur(base.price) + ' a ' + eur(pBtc) +
+                    ' (' + num((pBtc / base.price - 1) * 100) + ' % más). Si guardas lo que minas en vez de venderlo, eso es lo que juegas.' });
+        }
+        return tips;
+    }
+    function designTip(c, tag, title, intro, label, apply) {
+        var d = c.design;
+        return { tag: tag, title: title,
+            text: intro + d.panels + ' placas (' + num(d.kwp, 1) + ' kWp)' + (d.kwh ? ', ' + num(d.kwh, 1) + ' kWh de batería' : '') + ' y ' + c.inputs.qty + ' × ' + esc(c.inputs.miner.name) +
+                ', minando ' + (c.strat === '24h' ? 'día y noche' : 'solo con sol') + '.',
+            c: c, label: label, apply: apply };
+    }
+    /** Precio de Bitcoin con el que esta misma configuración recuperaría la inversión en `target` meses */
+    function btcPriceFor(c, target) {
+        var r = c.r, opex = (r.gridCostYear + r.maintenanceYear) / 12, inv = r.totalInvestment;
+        function ok(p) {
+            var cum = -inv;
+            for (var m = 0; m < Math.min(target, 60); m++) cum += Math.max(0, r.proyeccion60m[m].btc * p - opex);
+            return cum >= 0;
+        }
+        if (ok(c.price)) return null;
+        var lo = c.price, hi = c.price * 5;
+        if (!ok(hi)) return null;
+        for (var i = 0; i < 30; i++) { var mid = (lo + hi) / 2; if (ok(mid)) hi = mid; else lo = mid; }
+        return Math.ceil(hi / 1000) * 1000;
+    }
+    function waText(t) { return 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(t); }
+    function monthYear(m) {
+        return new Date(Date.now() + m * 30.44 * 86400000).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    }
+
+    function fixResult(c, base) {
+        var inv = c.r.totalInvestment, dInv = inv - base.r.totalInvestment;
+        return '<p class="fix-res">Recuperas la inversión en <b>' + months(c.payback) + '</b>' +
+            '<span>Inversión ' + eur(inv) + (Math.abs(dInv) >= 1 ? ' (' + signed(dInv) + ')' : '') + '</span></p>';
+    }
+    function fixHTML(base, tips) {
+        var act = tips.filter(function(t) { return !t.info; }), info = tips.filter(function(t) { return t.info; });
+        var now = base.payback !== null ? 'recuperas en ' + months(base.payback) : base.year1 > 0 ? 'no recuperas la inversión en 10 años' : 'pierdes dinero';
+        var html = '<div class="fix-head"><h2>' + (base.payback !== null ? 'Cómo recuperar antes la inversión' : 'Cómo podría salirte rentable') + '</h2>' +
+            '<p>He probado cambios sobre tu configuración, de uno en uno y con los precios de hoy. Ahora mismo ' + now + '.</p></div>';
+        if (act.length) {
+            html += '<div class="fix-grid">' + act.map(function(t, i) {
+                return '<article class="fix-tip' + (i === 0 ? ' best' : '') + '">' +
+                    '<span class="fix-tag">' + t.tag + (i === 0 ? ' · lo que más cambia' : '') + '</span>' +
+                    '<h3>' + esc(t.title) + '</h3><p>' + t.text + '</p>' + fixResult(t.c, base) +
+                    (t.note ? '<p class="fix-note">' + t.note + '</p>' : '') +
+                    (t.apply ? '<button type="button" class="btn" data-fix="' + i + '">Probar este cambio</button>'
+                             : t.cta ? '<a class="btn btn-sun" target="_blank" rel="noopener" href="' + t.cta.href + '">' + t.cta.label + '</a>' : '') +
+                    '</article>';
+            }).join('') + '</div>';
+        } else {
+            html += '<p class="fix-none">Con los precios de hoy no encuentro un cambio sencillo (otra máquina, Zcash, otra tarifa o placas) que te haga recuperar la inversión en 10 años.' +
+                (info.length ? ' Esto es lo que tendría que pasar para que te saliera:' : ' Marcos puede mirar tu caso contigo.') + '</p>';
+        }
+        if (info.length) {
+            html += '<div class="fix-info">' + info.map(function(t) {
+                return '<div><span class="fix-tag">' + t.tag + '</span><b>' + esc(t.title) + '</b><p>' + t.text + '</p></div>';
+            }).join('') + '</div>';
+        }
+        html += '<p class="fix-foot">¿Quieres que te ayude a elegir? <a target="_blank" rel="noopener" href="' + waLink(base) + '">Habla con Marcos por WhatsApp</a></p>';
+        return html;
+    }
+    function showFix(base) {
+        var box = $('fix'), btn = $('fix-btn');
+        box.hidden = false;
+        if (btn) btn.disabled = true;
+        box.innerHTML = '<p class="fix-wait">Probando cambios con tus datos…</p>';
+        box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(function() {
+            var tips = [];
+            try { tips = fixTips(base); } catch (e) { tips = []; }
+            applyHSP();
+            box.innerHTML = fixHTML(base, tips);
+            if (btn) btn.disabled = false;
+            var act = tips.filter(function(t) { return !t.info; });
+            qsa('[data-fix]', box).forEach(function(b) {
+                b.addEventListener('click', function() {
+                    var t = act[parseInt(b.getAttribute('data-fix'), 10)];
+                    fixUndo = { snap: JSON.stringify(st), label: t.label };
+                    t.apply();
+                    save();
+                    renderResult();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }, 40);
+    }
+    function undoHTML() {
+        if (!fixUndo) return '';
+        return '<div class="fix-undo" role="status"><span>Has aplicado el consejo: <b>' + esc(fixUndo.label) + '</b>.</span>' +
+            '<button type="button" class="link" id="fix-undo">Deshacer</button></div>';
+    }
+
     function renderResult() {
         applyHSP();
         var c = calc();
@@ -1048,13 +1363,16 @@
         var own = r.solarDirectYear + r.batteryYear, totalE = own + r.gridYearKWh;
         var ownPct = totalE > 0 ? own / totalE * 100 : 0;
 
-        var html = summaryHTML(i) +
+        var html = undoHTML() + summaryHTML(i) +
             '<section class="hero" aria-label="Resultado">' +
                 '<div><h1 class="' + v.cls + '">' + v.title + '</h1>' +
                     (c.payback !== null
                         ? '<div class="hero-num">' + months(c.payback).replace(/ (meses|mes|años)$/, '<small>$1</small>') + '</div>'
                         : '<div class="hero-num hero-num-no">' + (c.year1 > 0 ? 'Más de 10 años' : 'Pierde dinero') + '</div>') +
                     '<p class="hero-sub">' + (c.payback !== null ? 'para recuperar todo lo que inviertes. ' : '') + heroText(c) + '</p>' +
+                    (v.cls !== 'verdict-good'
+                        ? '<button type="button" class="btn btn-sun fix-btn" id="fix-btn">' + (v.cls === 'verdict-mid' ? '¿Cómo recuperarlo antes?' : '¿Cómo podría salirme rentable?') + '</button>'
+                        : '') +
                     // Lo que se gana y el bitcoin del primer año ya salen en la franja de abajo: aquí, lo que no sale en otro sitio
                     '<div class="hero-stats"><div><span>Inversión</span><b>' + eur(r.totalInvestment) + '</b></div>' +
                     (i.surplusStrategy === 'surplus-only' && r.hoursRunning > 0
@@ -1066,6 +1384,7 @@
                     '<span><i style="background:#c3d0df"></i>Red, valle</span><span><i style="background:#8ea3bd"></i>Red, llano</span><span><i style="background:#5d7698"></i>Red, punta</span></div></figure>' +
                 genHTML(c) +
             '</section>' +
+            '<section class="fix" id="fix" aria-live="polite" hidden></section>' +
             '<div class="actions">' +
                 (LITE
                     ? '<a class="btn btn-sun" target="_blank" rel="noopener" href="' + waLink(c) + '">Hablar con Marcos por WhatsApp</a>' +
@@ -1372,6 +1691,16 @@
     function bindResult(c) {
         qsa('[data-edit]').forEach(function(b) { b.addEventListener('click', function() { st._from = 'resultado'; go(b.getAttribute('data-edit')); }); });
         $('edit-btn').addEventListener('click', function() { st._from = 'resultado'; go('situacion'); });
+        var fixBtn = $('fix-btn');
+        if (fixBtn) fixBtn.addEventListener('click', function() { showFix(c); });
+        var undo = $('fix-undo');
+        if (undo) undo.addEventListener('click', function() {
+            var snap = JSON.parse(fixUndo.snap);
+            for (var k in snap) st[k] = snap[k];
+            fixUndo = null;
+            save();
+            renderResult();
+        });
         var pdf = $('pdf-btn');
         if (pdf) pdf.addEventListener('click', function() {
             applyHSP();
@@ -1450,6 +1779,7 @@
             return d;
         }).catch(function() { return fetchJSON(WORKER + '/network', 12000); }).then(function(d) {
             if (!d || !d.ok || !d.coins || !d.coins.BTC) return;
+            liveNet = d;
             SolHash.setBTCPrice(d.coins.BTC.priceEUR);
             // Hashrate equivalente a la dificultad (WhatToMine lo estima con el tiempo real entre bloques,
             // que oscila mucho; el motor cuenta 144 bloques al día, así que se normaliza a 600 s)
